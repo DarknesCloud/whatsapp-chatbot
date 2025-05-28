@@ -1,23 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const { sendMessage } = require('../services/whatsapp');
-const Response = require('../models/Response');
-
-// Verificación del Webhook
-router.get('/', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-
-  if (mode && token === process.env.VERIFY_TOKEN) {
-    return res.status(200).send(challenge);
-  } else {
-    return res.sendStatus(403);
-  }
-});
-
 // Respuesta a mensajes entrantes
 router.post('/', async (req, res) => {
+  console.log('✅ Se recibió un POST en /webhook');
+  console.log('🪵 Cuerpo del mensaje:', JSON.stringify(req.body, null, 2));
+
   const body = req.body;
 
   if (body.object) {
@@ -28,6 +13,8 @@ router.post('/', async (req, res) => {
     if (message) {
       const from = message.from;
       const text = message.text?.body;
+
+      console.log(`📨 Mensaje recibido de ${from}: ${text}`);
 
       // Guardamos la respuesta
       await Response.create({ from, message: text });
@@ -55,5 +42,3 @@ router.post('/', async (req, res) => {
 
   res.sendStatus(404);
 });
-
-module.exports = router;
