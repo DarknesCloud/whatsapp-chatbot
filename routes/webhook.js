@@ -1,5 +1,22 @@
 const express = require('express');
 const router = express.Router();
+const { sendMessage } = require('../services/whatsapp'); // Asegúrate de que este archivo exista y esté bien escrito
+const Response = require('../models/Response'); // Asegúrate de que este archivo y modelo existan correctamente
+
+// Verificación del Webhook (necesario para configurar con Meta/WhatsApp)
+router.get('/', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode && token === process.env.VERIFY_TOKEN) {
+    console.log('🔐 Webhook verificado correctamente');
+    return res.status(200).send(challenge);
+  } else {
+    console.log('❌ Error al verificar Webhook');
+    return res.sendStatus(403);
+  }
+});
 
 // Respuesta a mensajes entrantes
 router.post('/', async (req, res) => {
@@ -19,7 +36,7 @@ router.post('/', async (req, res) => {
 
       console.log(`📨 Mensaje recibido de ${from}: ${text}`);
 
-      // Guardamos la respuesta
+      // Guardamos la respuesta en MongoDB
       await Response.create({ from, message: text });
 
       // Ejemplo de menú simple
@@ -45,3 +62,5 @@ router.post('/', async (req, res) => {
 
   res.sendStatus(404);
 });
+
+module.exports = router; // 👈 ESTO ES LO QUE FALTABA

@@ -1,9 +1,10 @@
 const axios = require('axios');
+
 const URL = `https://graph.facebook.com/v19.0/${process.env.PHONE_NUMBER_ID}/messages`;
 
 exports.sendMessage = async (to, message) => {
   try {
-    await axios.post(
+    const response = await axios.post(
       URL,
       {
         messaging_product: 'whatsapp',
@@ -17,10 +18,14 @@ exports.sendMessage = async (to, message) => {
         },
       }
     );
+    // Puedes descomentar si quieres logging para debug
+    // console.log('Mensaje enviado con éxito:', response.data);
   } catch (error) {
-    console.error(
-      'Error sending message:',
-      error.response?.data || error.message
-    );
+    // Mejor detalle del error para debugging
+    if (error.response) {
+      console.error('Error enviando mensaje:', error.response.data);
+    } else {
+      console.error('Error enviando mensaje:', error.message);
+    }
   }
 };
