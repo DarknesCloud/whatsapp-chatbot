@@ -1,3 +1,6 @@
+const express = require('express');
+const router = express.Router();
+
 // Respuesta a mensajes entrantes
 router.post('/', async (req, res) => {
   console.log('✅ Se recibió un POST en /webhook');
